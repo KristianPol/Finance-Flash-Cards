@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Flashcards - BAnM3-2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --highlight: #e94560;
+            --text: #eaeaea;
+            --text-muted: #a0a0a0;
+            --card-bg: #16213e;
+            --card-back: #0f3460;
+            --success: #00d9ff;
+            --warning: #f39c12;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .header {
+            width: 100%;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header h1 span {
+            color: var(--highlight);
+        }
+
+        .stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--highlight), var(--success));
+            transition: width 0.5s ease;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .main-container {
+            flex: 1;
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text);
+        }
+
+        .filter-btn.active {
+            background: var(--highlight);
+            color: white;
+            border-color: var(--highlight);
+        }
+
+        .card-container {
+            width: 100%;
+            max-width: 600px;
+            height: 400px;
+            perspective: 1000px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card-front {
+            background: linear-gradient(145deg, var(--card-bg) 0%, var(--secondary) 100%);
+        }
+
+        .card-back {
+            background: linear-gradient(145deg, var(--card-back) 0%, var(--accent) 100%);
+            transform: rotateY(180deg);
+            overflow-y: auto;
+        }
+
+        .card-back::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .card-back::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+
+        .card-category {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--highlight);
+            font-weight: 600;
+        }
+
+        .card-number {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .card-question {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-top: 1rem;
+        }
+
+        .card-answer {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            text-align: left;
+            width: 100%;
+        }
+
+        .card-answer ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card-answer li {
+            margin-bottom: 0.7rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .card-answer li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--highlight);
+        }
+
+        .card-answer table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .card-answer th, .card-answer td {
+            padding: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: left;
+        }
+
+        .card-answer th {
+            background: rgba(255,255,255,0.1);
+            font-weight: 600;
+        }
+
+        .flip-hint {
+            position: absolute;
+            bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .flip-hint svg {
+            width: 16px;
+            height: 16px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-nav {
+            background: rgba(255,255,255,0.1);
+            color: var(--text);
+        }
+
+        .btn-nav:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-difficult {
+            background: var(--highlight);
+            color: white;
+        }
+
+        .btn-difficult:hover {
+            background: #ff6b6b;
+            transform: translateY(-2px);
+        }
+
+        .btn-easy {
+            background: var(--success);
+            color: var(--primary);
+        }
+
+        .btn-easy:hover {
+            background: #80e8ff;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .keyboard-hints {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .kbd {
+            background: rgba(255,255,255,0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .completion-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .completion-screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .completion-screen h2 {
+            font-size: 2rem;
+            color: var(--success);
+        }
+
+        .completion-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .completion-stat {
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .completion-stat .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--highlight);
+        }
+
+        .completion-stat .label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .difficult-cards {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .star-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 3.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+
+        .star-btn:hover {
+            color: var(--warning);
+        }
+
+        .star-btn.marked {
+            color: var(--warning);
+        }
+
+        @media (max-width: 600px) {
+            .card-container {
+                height: 350px;
+            }
+            .card-question {
+                font-size: 1.3rem;
+            }
+            .card-answer {
+                font-size: 0.95rem;
+            }
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .completion-stats {
+                grid-template-columns: 1fr;
+            }
+            .keyboard-hints {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Finance <span>Flashcards</span></h1>
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" id="current-card">1</span>
+                <span class="stat-label">Current</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="total-cards">0</span>
+                <span class="stat-label">Total</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="marked-count">0</span>
+                <span class="stat-label">Marked</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+
+    <div class="main-container">
+        <div class="category-filter" id="category-filter">
+            <button class="filter-btn active" data-category="all">All</button>
+        </div>
+
+        <div class="card-container" id="card-container">
+            <div class="card" id="card">
+                <div class="card-face card-front">
+                    <span class="card-category" id="front-category">Category</span>
+                    <span class="card-number" id="front-number">1/50</span>
+                    <button class="star-btn" id="star-btn" title="Mark as difficult">★</button>
+                    <div class="card-question" id="card-question">Question</div>
+                    <div class="flip-hint">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12l7-7 7 7"/>
+                        </svg>
+                        Click or Space to flip
+                    </div>
+                </div>
+                <div class="card-face card-back">
+                    <span class="card-category" id="back-category">Category</span>
+                    <div class="card-answer" id="card-answer">Answer</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="completion-screen" id="completion-screen">
+            <h2>🎉 Session Complete!</h2>
+            <div class="completion-stats">
+                <div class="completion-stat">
+                    <div class="value" id="completed-total">0</div>
+                    <div class="label">Cards Reviewed</div>
+                </div>
+                <div class="completion-stat">
+                    <div class="value" id="completed-marked">0</div>
+                    <div class="label">Marked Difficult</div>
+                </div>
+                <div class="completion-stat">
+                    <div class="value" id="completed-percent">0%</div>
+                    <div class="label">Completion</div>
+                </div>
+            </div>
+            <button class="btn btn-nav" id="restart-btn">Restart Session</button>
+            <div class="difficult-cards" id="difficult-summary"></div>
+        </div>
+
+        <div class="controls" id="controls">
+            <button class="btn btn-nav" id="prev-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+                Previous
+            </button>
+            <button class="btn btn-difficult" id="difficult-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Mark Difficult
+            </button>
+            <button class="btn btn-easy" id="easy-btn">
+                Next
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="keyboard-hints">
+            <span><span class="kbd">Space</span> Flip</span>
+            <span><span class="kbd">←</span> Prev</span>
+            <span><span class="kbd">→</span> Next</span>
+            <span><span class="kbd">M</span> Mark</span>
+            <span><span class="kbd">1</span> Difficult</span>
+            <span><span class="kbd">2</span> Easy</span>
+        </div>
+    </div>
+
+    <script>
+        const flashcardsData = [
+            {
+                category: "Overview",
+                question: "What are the 3 core functions of banks?",
+                answer: "<ul><li><strong>Lending</strong> — granting loans and mortgages</li><li><strong>Deposits</strong> — accepting savings and checking deposits</li><li><strong>Payment Processing</strong> — maintaining accounts and executing transfers</li></ul>"
+            },
+            {
+                category: "Overview",
+                question: "What other financial institutions exist besides banks?",
+                answer: "<ul><li><strong>Insurance</strong> — risk management</li><li><strong>Investment funds</strong> — issue bonds, mutual funds, ETFs</li><li><strong>Pension funds</strong> — private retirement savings</li><li><strong>Shadow banks</strong> — private equity (off-exchange)</li><li><strong>Fintechs</strong> — digital/mobile financial services</li></ul>"
+            },
+            {
+                category: "Macroeconomics",
+                question: "What are the 3 macroeconomic functions of banks?",
+                answer: "<ul><li><strong>Aggregation</strong> — pool many small deposits to grant large loans</li><li><strong>Maturity extension</strong> — short-term deposits → long-term loans</li><li><strong>Safe haven / Risk transformation</strong> — savers trust money is safe; bank assumes credit risk</li></ul>"
+            },
+            {
+                category: "Macroeconomics",
+                question: "What is a bank run and how is it prevented?",
+                answer: "<ul><li><strong>Bank run</strong> = loss of confidence → all savers withdraw simultaneously</li><li>Prevention: <strong>Minimum capital requirements</strong> for banks</li><li><strong>Deposit insurance</strong> — pays up to €100,000 per depositor per bank (EU/EEA)</li><li>US equivalent: <strong>FDIC</strong> up to $250,000</li></ul>"
+            },
+            {
+                category: "Institutions",
+                question: "What are the 3 key financial stability institutions in Austria/EU?",
+                answer: "<ul><li><strong>ECB</strong> (European Central Bank) — supervises 114 largest EURO-area banks, runs stress tests</li><li><strong>OeNB</strong> (Austrian National Bank) — supervises smaller Austrian banks</li><li><strong>FMA</strong> (Financial Market Authority) — issues banking licenses, supervises insurances/pension funds, dissolves bankrupt banks</li></ul>"
+            },
+            {
+                category: "Banking Act",
+                question: "Name 5 banking services under the Austrian Banking Act (BWG)",
+                answer: "<ul><li><strong>Einlagengeschäft</strong> — Deposit-taking</li><li><strong>Kreditgeschäft</strong> — Lending</li><li><strong>Kontokorrentgeschäft</strong> — Checking accounts</li><li><strong>Diskontgeschäft</strong> — Discounting bills</li><li><strong>Garantiegeschäft</strong> — Guarantees</li><li><strong>Depotgeschäft</strong> — Custody</li><li><strong>Zahlungsgeschäft</strong> — Payment services</li><li><strong>Factoring</strong> — Buying receivables</li></ul>"
+            },
+            {
+                category: "Banking Act",
+                question: "What is the difference between Futures and Options?",
+                answer: "<ul><li><strong>Future</strong>: Contract to buy/sell at set price on set date — <strong>both parties obligated</strong> → unlimited gains AND losses</li><li><strong>Option</strong>: Gives the <strong>right but not obligation</strong> to buy/sell — one party can opt out → <strong>loss limited to premium</strong></li><li><strong>Call option</strong> = right to buy (profit from rising market)</li><li><strong>Put option</strong> = right to sell (profit from falling market)</li></ul>"
+            },
+            {
+                category: "Bonds",
+                question: "What are the key terms of a bond?",
+                answer: "<ul><li><strong>Issuer</strong> — borrower (government, corporation)</li><li><strong>Face Value</strong> — amount repaid at maturity (typically €1,000)</li><li><strong>Coupon Rate</strong> — interest rate paid annually/semi-annually</li><li><strong>Maturity Date</strong> — when principal is due</li><li><strong>Yield</strong> — effective return based on current price</li><li><strong>Market Price</strong> — trades above/below face value depending on interest rates</li></ul>"
+            },
+            {
+                category: "Bonds",
+                question: "What are the 5 common types of bonds?",
+                answer: "<ul><li><strong>Treasury/Government bonds</strong> — safest (e.g., German 'Bund')</li><li><strong>Corporate bonds</strong> — higher risk, higher yield</li><li><strong>Municipal bonds</strong> — often tax-free for local investors</li><li><strong>Zero-coupon bonds</strong> — sold at discount, no periodic interest</li><li><strong>Convertible bonds</strong> — can convert to company shares</li></ul>"
+            },
+            {
+                category: "Bonds",
+                question: "What are the pros and cons of investing in bonds?",
+                answer: "<ul><li><strong>Pros:</strong> Stable income (predictable coupons), Capital preservation (face value at maturity), Diversification (less volatile than stocks), Tax benefits (municipal bonds)</li><li><strong>Cons:</strong> Interest Rate Risk (prices fall when rates rise), Credit Risk (issuer may default), Inflation Risk (erodes fixed payments)</li></ul>"
+            },
+            {
+                category: "Instruments",
+                question: "What is a Bill of Exchange (Wechsel)?",
+                answer: "<ul><li><strong>Written, signed, unconditional</strong> order to pay a specific amount</li><li>From <strong>drawer</strong> to <strong>drawee</strong> to <strong>payee</strong></li><li>Payable at fixed future date or on demand</li><li><strong>Enforceable quickly</strong> through court (no defenses based on underlying transaction)</li><li>Can be <strong>discounted by banks</strong> for early cash</li></ul>"
+            },
+            {
+                category: "Austria",
+                question: "What are the 6 banking sectors in Austria?",
+                answer: "<ul><li><strong>Aktienbanken</strong> (BAWAG) — publicly traded universal banks</li><li><strong>Sparkassen</strong> (Erste Bank) — historically municipality-owned</li><li><strong>Raiffeisenbanken</strong> — historically farmer cooperatives</li><li><strong>Volksbanken</strong> — historically farmer cooperatives</li><li><strong>Hypobanken</strong> — state-owned, housing subsidies</li><li><strong>Bausparkassen</strong> (Wüstenrot) — savings for home ownership</li></ul>"
+            },
+            {
+                category: "Types",
+                question: "What is the difference between Universal and Specialized banks?",
+                answer: "<ul><li><strong>Universal banks</strong> — all conventional transactions (retail + commercial): checking, savings, loans, securities</li><li><strong>Specialized banks</strong> — only certain transactions: Bausparkassen (mortgages), investment companies (mutual funds), credit card companies, Österreichische Kontrollbank (export guarantees)</li><li><strong>Central banks</strong> (OeNB, ECB) — macroeconomic tasks: set interest rates, issue banknotes, ensure liquidity</li></ul>"
+            },
+            {
+                category: "Business Model",
+                question: "How do banks make money? Explain the balance sheet.",
+                answer: "<ul><li><strong>Core model</strong>: Accept deposits (pay low interest) → Grant loans (charge higher interest) = Interest margin</li><li><strong>Assets (Active)</strong>: Loans to customers, non-current assets, other current assets</li><li><strong>Liabilities & Equity (Passive)</strong>: Customer deposits, owner's capital, other liabilities</li><li><strong>PnL</strong>: Interest Income − Interest Expenses = Net Interest Income + Fees + Trading − Expenses = Profit</li></ul>"
+            },
+            {
+                category: "Loans",
+                question: "Compare Overdraft, Consumer Credit, and Mortgage loans",
+                answer: "<table><tr><th>Type</th><th>Term</th><th>Interest</th><th>Collateral</th></tr><tr><td>Overdraft</td><td>2-3 months</td><td>Very high (9-15%)</td><td>None</td></tr><tr><td>Consumer Credit</td><td>Up to 10 years</td><td>High (8-10%)</td><td>Guarantor/collateral</td></tr><tr><td>Mortgage</td><td>Up to 25 years</td><td>Low (3-6%)</td><td>Home/land</td></tr></table>"
+            },
+            {
+                category: "Loans",
+                question: "What are the 3 types of loan repayment structures?",
+                answer: "<ul><li><strong>Amortizing loans</strong> — equal periodic payments (principal + interest), e.g., mortgages, investment loans</li><li><strong>Interest-only loans</strong> — pay interest only; entire principal at maturity, e.g., property loans</li><li><strong>Revolving credit</strong> — draw/repay repeatedly within limit, e.g., overdraft, credit lines</li></ul>"
+            },
+            {
+                category: "Deposits",
+                question: "What are the 3 types of customer deposits?",
+                answer: "<ul><li><strong>Daily/Demand deposits</strong> (Sichteinlagen) — no fixed term, checking/savings accounts</li><li><strong>Term/Time deposits</strong> — fixed terms from 6 months to 5 years</li><li><strong>Securities deposits</strong> — cash bonds, long-term bonds (1-30 years), primarily for businesses</li></ul>"
+            },
+            {
+                category: "Loans",
+                question: "What fees are typically included in loan agreements?",
+                answer: "<ul><li><strong>Arrangement fee</strong> — one-time, 0.5-2% of loan (deducted upfront or added)</li><li><strong>Account management fee</strong> — monthly (€8-12)</li><li><strong>Collateral monitoring fee</strong> — checking collateral value</li><li><strong>Risk/provision fee</strong> — for credit risk coverage</li><li><strong>Insurance premium</strong> — linked payment protection/life insurance</li></ul>"
+            },
+            {
+                category: "Interest",
+                question: "How is a variable interest rate calculated?",
+                answer: "<ul><li><strong>Variable Rate = Base Rate + Margin</strong></li><li><strong>Base rate</strong> — short-term benchmark (e.g., 3M EURIBOR, SOFR)</li><li><strong>Margin</strong> — fixed addition covering risk, costs, and profit</li><li><strong>3M EURIBOR</strong> is most common for mortgages</li><li><strong>Example</strong>: 3M EURIBOR (3.70%) + 1.5% margin = 5.20% → rounded to 5.25%</li></ul>"
+            },
+            {
+                category: "Interest",
+                question: "What is the difference between Nominal Rate and APR?",
+                answer: "<ul><li><strong>Nominal Rate</strong> — interest only, used in advertising (looks lower)</li><li><strong>APR (Annual Percentage Rate / Effective Rate)</strong> — includes ALL costs: interest + arrangement fees + appraisal + notary + account fees + early repayment penalties</li><li>APR is the <strong>true cost of borrowing</strong> — always higher than nominal</li></ul>"
+            },
+            {
+                category: "Calculations",
+                question: "Calculate APR for an interest-only loan: €10,000, 3 years, 4% nominal, €90/year statement fee, €10/quarter management fee",
+                answer: "<ul><li>Interest p.a.: €10,000 × 4% = <strong>€400</strong></li><li>Total fees p.a.: €90 + (€10 × 4) = <strong>€130</strong></li><li>APR = (€400 + €130) / €10,000 = <strong>5.3%</strong></li><li>Total credit burden: Interest €1,200 + Fees €390 + Principal €10,000 = <strong>€11,590</strong></li></ul>"
+            },
+            {
+                category: "Calculations",
+                question: "How do you calculate monthly payment for an amortizing loan in Excel?",
+                answer: "<ul><li><strong>Formula</strong>: =PMT(rate/12, nper, -pv)</li><li><strong>rate</strong> = annual interest rate</li><li><strong>nper</strong> = total number of payments (years × 12)</li><li><strong>pv</strong> = present value / loan amount (use negative)</li><li><strong>Example</strong>: €200,000, 25 years, 4.27% → =PMT(4.27%/12, 300, -200000) = <strong>€1,085.72</strong></li></ul>"
+            },
+            {
+                category: "Calculations",
+                question: "What is the annuity formula for amortizing loans?",
+                answer: "<ul><li><strong>A = P × [r(1+r)ⁿ] / [(1+r)ⁿ − 1]</strong></li><li>A = annuity payment, P = principal, r = rate per period, n = number of periods</li><li><strong>Example</strong>: €10,000, 5%, 3 years → Annual payment = <strong>€3,672.09</strong></li><li>Each payment: part interest, part principal. Interest decreases over time, principal portion increases.</li></ul>"
+            },
+            {
+                category: "Credit",
+                question: "What is creditworthiness and how is it assessed?",
+                answer: "<ul><li><strong>Creditworthiness</strong> = likelihood of repaying a loan</li><li>Based on: payment history, financial statements, income, assets, existing debt, industry, management quality</li><li><strong>Austria</strong>: KSV 1870, AKV</li><li><strong>International</strong>: S&P, Moody's, Fitch</li><li>Result: <strong>internal credit rating</strong></li></ul>"
+            },
+            {
+                category: "Credit",
+                question: "Explain the rating scale of major agencies (S&P, Moody's, Fitch)",
+                answer: "<ul><li><strong>Investment grade</strong>: BBB- (S&P/Fitch) or Baa3 (Moody's) and ABOVE</li><li><strong>Speculative grade</strong> (junk): Below BBB-/Baa3 — higher risk, higher yield</li><li><strong>Highest</strong>: AAA/Aaa</li><li><strong>Default</strong>: D/C</li><li>Ratings rely on quantitative data (financials, ratios) AND qualitative assessment (management, strategy)</li></ul>"
+            },
+            {
+                category: "Collateral",
+                question: "What types of collateral can be used for loans?",
+                answer: "<ul><li><strong>Salary garnishment</strong> — access to wages</li><li><strong>Mortgage/lien</strong> — registration in land register</li><li><strong>Guarantee</strong> — third party assumes debt if borrower fails (secondary obligation)</li><li><strong>Bill of exchange</strong> — faster enforcement</li><li><strong>Credit default insurance</strong> — reduces risk, better terms</li><li><strong>Life insurance pledge</strong> — policy as security</li></ul>"
+            },
+            {
+                category: "Default",
+                question: "What is the procedure when a borrower defaults?",
+                answer: "<ul><li>1. <strong>Monitor</strong> — detect missed payments, declining scores</li><li>2. <strong>NPL classification</strong> — >90 days overdue, unlikely full repayment</li><li>3. <strong>Restructuring</strong> — new schedule, lower rate, moratorium</li><li>4. <strong>Collateral realization</strong> — repossession, foreclosure, sale</li><li>5. <strong>Legal action</strong> — payment order, wage seizure, account freeze</li><li>6. <strong>Write-off</strong> — bad debt or sell to collection agency at discount</li></ul>"
+            },
+            {
+                category: "ABL",
+                question: "What are typical advance rates for Asset-Backed Loans (ABL)?",
+                answer: "<ul><li><strong>Accounts Receivable</strong>: 85-90% of eligible A/R</li><li><strong>Inventory</strong>: 85-90% of net orderly liquidation value (NOLV)</li><li><strong>Real estate</strong>: Up to 70% of fair market value</li><li><strong>Machinery & Equipment</strong>: Up to 85% of NOLV</li><li>Quality matters: well-diversified, low delinquency, rapid turnover, non-specialized goods</li></ul>"
+            },
+            {
+                category: "Insurance",
+                question: "What is insurance and how does it work step-by-step?",
+                answer: "<ul><li><strong>Insurance = risk management tool</strong> — pay small regular premium to transfer risk of large loss</li><li>1. <strong>Risk assessment</strong> — insurer evaluates risk</li><li>2. <strong>Contract (Policy)</strong> — outlines coverage, limits, exclusions, premium</li><li>3. <strong>Premium payment</strong> — regular fees</li><li>4. <strong>Incident</strong> — covered event occurs</li><li>5. <strong>Claim</strong> — formal request for payment</li><li>6. <strong>Review</strong> — insurer checks policy terms</li><li>7. <strong>Payout</strong> — compensation if approved</li></ul>"
+            },
+            {
+                category: "Insurance",
+                question: "Define the 6 key insurance terms",
+                answer: "<ul><li><strong>Premium</strong> — price paid for coverage</li><li><strong>Policy</strong> — legal contract between insurer and insured</li><li><strong>Deductible</strong> — amount insured pays before insurance kicks in</li><li><strong>Coverage limit</strong> — maximum insurer will pay</li><li><strong>Claim</strong> — formal request for payment under policy</li><li><strong>Exclusion</strong> — risks NOT covered by the policy</li></ul>"
+            },
+            {
+                category: "Insurance AT",
+                question: "What are the 5 types of statutory social insurance in Austria?",
+                answer: "<ul><li><strong>Health Insurance</strong> (ÖGK, BVAEB, SVS) — medical, hospital, medication</li><li><strong>Accident Insurance</strong> (AUVA) — work accidents, rehabilitation</li><li><strong>Pension Insurance</strong> (PVA) — retirement, disability, survivor pensions</li><li><strong>Unemployment Insurance</strong> (AMS) — benefits, retraining, placement</li><li><strong>Long-term Care</strong> — financed via taxes, not contributions</li></ul>"
+            },
+            {
+                category: "Insurance AT",
+                question: "What are the 6 steps to conclude an insurance contract in Austria?",
+                answer: "<ul><li>1. <strong>Application</strong> — submit coverage request, personal info, risk details</li><li>2. <strong>Risk assessment</strong> — insurer evaluates, may request medical checks</li><li>3. <strong>Insurance offer</strong> — binding offer with terms and premium</li><li>4. <strong>Acceptance</strong> — customer signs, contract concluded</li><li>5. <strong>Policy issuance</strong> — official document delivered</li><li>6. <strong>First premium payment</strong> — coverage begins upon payment</li></ul>"
+            },
+            {
+                category: "Insurance AT",
+                question: "Where can you buy insurance in Austria and what are the rules?",
+                answer: "<ul><li><strong>Direct</strong> from companies (local offices, online)</li><li><strong>Tied agents</strong> (Versicherungsagenten) — represent one insurer</li><li><strong>Independent brokers</strong> (Versicherungsmakler) — compare multiple providers</li><li><strong>Right of withdrawal</strong>: 14 days (30 days for life insurance)</li><li>Insurers/brokers must be <strong>licensed by FMA</strong></li><li>Governed by <strong>Versicherungsvertragsgesetz (VersVG)</strong></li></ul>"
+            },
+            {
+                category: "Property",
+                question: "What does property (Eigenheim) insurance cover and exclude?",
+                answer: "<ul><li><strong>Covers</strong>: Building structure (walls, roof, windows, garage)</li><li><strong>Risks</strong>: Fire, storms, hail, burst pipes, natural disasters (if added)</li><li><strong>NOT covered</strong>: Gross negligence, intentional damage</li><li><strong>Earthquakes and flooding</strong> — usually optional add-ons</li><li>Premium based on: property size (m²), location (risk area), coverage amount</li></ul>"
+            },
+            {
+                category: "Property",
+                question: "What does household (Haushalts) insurance cover?",
+                answer: "<ul><li><strong>Covers</strong>: Movable items — furniture, electronics, clothing, valuables</li><li><strong>Risks</strong>: Fire, theft, vandalism, water damage, storm, hail</li><li>Often includes <strong>private liability (Privathaftpflicht)</strong></li><li><strong>Optional</strong>: Bike theft, glass breakage, home office equipment</li><li>Often <strong>required by landlords</strong> from tenants</li></ul>"
+            },
+            {
+                category: "Vehicle",
+                question: "What are the 5 types of vehicle insurance in Austria?",
+                answer: "<ul><li><strong>Liability (Kfz-Haftpflicht)</strong> — MANDATORY, covers damage to others</li><li><strong>Partial (Teilkasko)</strong> — optional, covers theft, vandalism, glass, storm, animal collision</li><li><strong>Full (Vollkasko)</strong> — optional, covers everything + own damage even if at fault</li><li><strong>Legal protection</strong> — optional, legal fees in disputes</li><li><strong>Driver/passenger accident</strong> — optional, injuries to occupants</li></ul>"
+            },
+            {
+                category: "Vehicle",
+                question: "How does the Bonus-Malus system work for vehicle insurance?",
+                answer: "<ul><li><strong>No-claims discount</strong> system for liability insurance</li><li><strong>Class 9</strong> = starting level (100% of standard premium)</li><li><strong>Class 0</strong> = best level (~40-50% of premium)</li><li><strong>Higher classes</strong> = up to 280% for high-risk drivers</li><li>Each <strong>accident at fault</strong> = move 3 steps UP (worse)</li><li>Each <strong>claim-free year</strong> = move 1 step DOWN (better)</li></ul>"
+            },
+            {
+                category: "Life",
+                question: "What is life insurance and how does it work?",
+                answer: "<ul><li>Insurer pays <strong>lump sum (death benefit)</strong> to beneficiary upon insured's death</li><li>Goal: <strong>financial security for dependents</strong></li><li>Premium depends on <strong>health and age</strong> — false info = no payout</li><li><strong>Term life</strong> = comparatively low premiums</li><li>Often <strong>pledged as collateral</strong> for personal loans</li><li>Payout only if death occurs <strong>during the policy term</strong></li></ul>"
+            },
+            {
+                category: "Business",
+                question: "What are 8 common business insurance types?",
+                answer: "<ul><li><strong>Business liability</strong> — damage from business activities</li><li><strong>Property</strong> — buildings, inventory, equipment</li><li><strong>Business interruption</strong> — lost profit during shutdown</li><li><strong>Legal expenses</strong> — legal fees in disputes</li><li><strong>Product liability</strong> — defective product damages</li><li><strong>Cyber insurance</strong> — cyberattacks, data breaches</li><li><strong>Credit insurance</strong> — non-payment by customers</li><li><strong>D&O</strong> — directors' personal liability</li></ul>"
+            },
+            {
+                category: "Claims",
+                question: "What are the 5 steps of the insurance claims handling process?",
+                answer: "<ul><li>1. <strong>Report claim</strong> — ASAP, online/phone/email/written</li><li>2. <strong>Provide info</strong> — photos, police reports, invoices</li><li>3. <strong>Assessment</strong> — insurer reviews, may appoint expert</li><li>4. <strong>Decision & payout</strong> — repair, replace, or cash (based on coverage, deductible, terms)</li><li>5. <strong>Recourse</strong> — insurer may reclaim from third party</li></ul>"
+            },
+            {
+                category: "Claims",
+                question: "What is underinsurance and how does it affect payout?",
+                answer: "<ul><li><strong>Underinsurance</strong> = sum insured is LOWER than actual value</li><li>Insurer reduces payout <strong>proportionally</strong></li><li><strong>Example</strong>: Contents worth €60,000, insured for €30,000 (50%)</li><li>Fire damage €10,000 → <strong>Payout only €5,000</strong> (50% of damage)</li><li>Always insure for <strong>full replacement value</strong>!</li></ul>"
+            },
+            {
+                category: "Calculations",
+                question: "How do you calculate business interruption payout?",
+                answer: "<ul><li><strong>Formula</strong>: (Revenue − Variable Costs) / 365 × Days Closed</li><li><strong>Example</strong>: Revenue €1.8M, Variable costs €1.08M, Closed 12 days</li><li>(€1,800,000 − €1,080,000) / 365 × 12 = <strong>€23,671</strong> (or €24,000 rounded)</li><li>Covers <strong>lost profit</strong> and <strong>fixed costs</strong> during shutdown</li></ul>"
+            },
+            {
+                category: "Calculations",
+                question: "What is the formula for calculating effective APR in Excel for an amortizing loan?",
+                answer: "<ul><li><strong>=RATE(nper, PMT, -pv) × 12</strong></li><li>Where PMT = monthly payment INCLUDING all fees</li><li><strong>Steps</strong>:</li><li>1. Calculate base payment: =PMT(rate/12, nper, -pv)</li><li>2. Add monthly fees to get total PMT</li><li>3. Calculate effective rate: =RATE(nper, -totalPMT, pv) × 12</li><li><strong>Example</strong>: €200k, 300 months, payment €1,120.78 incl. fees → APR = 4.58%</li></ul>"
+            },
+            {
+                category: "Loans",
+                question: "What are positive and negative covenants in loan agreements?",
+                answer: "<ul><li><strong>Positive covenants</strong> — obligations borrower MUST meet:</li><li>• Maintain insurance</li><li>• Submit financial statements</li><li>• Meet financial ratios</li><li><strong>Negative covenants</strong> — restrictions borrower must NOT do:</li><li>• No additional borrowing</li><li>• No asset sales without consent</li><li>• No dividend payments</li></ul>"
+            },
+            {
+                category: "Loans",
+                question: "What events trigger default in a loan agreement?",
+                answer: "<ul><li><strong>Events of default</strong>:</li><li>• Missed payments</li><li>• Insolvency</li><li>• Covenant breach</li><li>• Cross-default (default on other loans)</li><li><strong>Remedies available to lender</strong>:</li><li>• Interest surcharges</li><li>• Fees</li><li>• Acceleration of debt (demand immediate repayment)</li><li>• Legal action</li></ul>"
+            },
+            {
+                category: "Banking Act",
+                question: "What is factoring and what types exist?",
+                answer: "<ul><li><strong>Factoring</strong> = purchasing receivables (buying invoices/claims from goods/services)</li><li><strong>With recourse</strong> — bank can reclaim from seller if debtor doesn't pay</li><li><strong>Without recourse</strong> — bank assumes full risk of non-payment</li><li>Also includes <strong>collection services</strong> (Einzug der Forderungen)</li><li>Helps businesses improve <strong>cash flow</strong> by getting immediate payment</li></ul>"
+            },
+            {
+                category: "Macroeconomics",
+                question: "What are the 3 regulations to protect investors in banking?",
+                answer: "<ul><li>1. <strong>Minimum capital requirements</strong> — banks must hold sufficient capital as buffer</li><li>2. <strong>Deposit insurance</strong> — pays up to €100,000 per depositor if bank fails</li><li>3. <strong>Supervision</strong> — ECB/OeNB/FMA monitor banks to prevent failure</li><li>Capital = buffer for losses if borrowers cannot repay</li><li>More loans outstanding = more capital required</li></ul>"
+            },
+            {
+                category: "Interest",
+                question: "What are basis points and how are interest rates expressed?",
+                answer: "<ul><li><strong>100 basis points (bps) = 1%</strong></li><li>Rates often expressed as fractions (e.g., 9⅜%)</li><li>Or in basis points (e.g., 375 bps = 3.75%)</li><li>Used for precise rate adjustments and spreads</li><li>Margin is often quoted in basis points above base rate</li></ul>"
+            },
+            {
+                category: "Credit",
+                question: "What information do banks require for credit appraisal of companies?",
+                answer: "<ul><li>• Annual financial statements (balance sheet, income statement)</li><li>• Trial balances and detailed account balances</li><li>• Current business performance figures</li><li>• Budgets and financial plans</li><li>• Evidence of assets, equity, current obligations</li><li>• Ownership structure, management (KYC/UBO)</li><li>• Industry, market environment, competition</li><li>• Financial circumstances of guarantors</li></ul>"
+            },
+            {
+                category: "Austria",
+                question: "What is the difference between Sparkassen, Raiffeisenbanken, and Volksbanken?",
+                answer: "<ul><li><strong>Sparkassen</strong> (e.g., Erste Bank) — historically and partly still owned by <strong>municipalities</strong></li><li><strong>Raiffeisenbanken</strong> — historically owned by <strong>farmer cooperatives</strong></li><li><strong>Volksbanken</strong> — historically owned by <strong>farmer cooperatives</strong></li><li>All three are cooperative/mutual banking structures with local roots</li><li>Focus on regional lending and savings</li></ul>"
+            },
+            {
+                category: "Insurance",
+                question: "What is the difference between statutory and private insurance in Austria?",
+                answer: "<ul><li><strong>Statutory (Social) Insurance</strong> — mandatory, funded by contributions:</li><li>• Health, Accident, Pension, Unemployment, Long-term care</li><li><strong>Private Insurance</strong> — voluntary, supplements or extends coverage:</li><li>• Life insurance, Property, Additional health/accident</li><li>Private insurance can <strong>supplement or extend</strong> public coverage</li></ul>"
+            },
+            {
+                category: "Vehicle",
+                question: "What factors influence motor vehicle insurance premiums?",
+                answer: "<ul><li>• <strong>Type of vehicle</strong> — power, model, value</li><li>• <strong>Driver's age and experience</strong></li><li>• <strong>Chosen deductible</strong> — lower deductible = higher premium</li><li>• <strong>Bonus-Malus class</strong> — claim-free years reduce premium</li><li>• <strong>Usage</strong> — private vs. commercial</li><li>• <strong>Region</strong> — accident/statistics by area</li></ul>"
+            },
+            {
+                category: "Business Model",
+                question: "What is the difference between active and passive transactions in banking?",
+                answer: "<ul><li><strong>Active transactions</strong> (Assets):</li><li>• Loans to customers or other banks</li><li>• Non-current assets</li><li>• Other current assets</li><li><strong>Passive transactions</strong> (Liabilities & Equity):</li><li>• Deposits by customers or other banks</li><li>• Owner's capital</li><li>• Other liabilities</li><li>Assets = Liabilities + Equity (balance sheet equation)</li></ul>"
+            }
+        ];
+
+        class FlashcardApp {
+            constructor() {
+                this.cards = flashcardsData;
+                this.currentIndex = 0;
+                this.filteredCards = [...this.cards];
+                this.markedCards = new Set();
+                this.isFlipped = false;
+                this.currentCategory = 'all';
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupCategoryFilter();
+                this.updateDisplay();
+                this.updateStats();
+            }
+
+            setupCategoryFilter() {
+                const categories = ['all', ...new Set(this.cards.map(c => c.category))];
+                const filterContainer = document.getElementById('category-filter');
+                filterContainer.innerHTML = categories.map(cat => 
+                    '<button class="filter-btn ' + (cat === 'all' ? 'active' : '') + '" data-category="' + cat + '">' + cat + '</button>'
+                ).join('');
+
+                const self = this;
+                filterContainer.querySelectorAll('.filter-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        const category = e.target.dataset.category;
+                        self.filterCategory(category);
+                        filterContainer.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+                        e.target.classList.add('active');
+                    });
+                });
+            }
+
+            filterCategory(category) {
+                this.currentCategory = category;
+                this.filteredCards = category === 'all' 
+                    ? [...this.cards] 
+                    : this.cards.filter(function(c) { return c.category === category; });
+                this.currentIndex = 0;
+                this.isFlipped = false;
+                this.updateDisplay();
+                this.updateStats();
+            }
+
+            setupEventListeners() {
+                const self = this;
+
+                // Card flip
+                document.getElementById('card-container').addEventListener('click', function(e) {
+                    if (!e.target.closest('.star-btn')) {
+                        self.flip();
+                    }
+                });
+
+                // Star button
+                document.getElementById('star-btn').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    self.toggleMark();
+                });
+
+                // Navigation
+                document.getElementById('prev-btn').addEventListener('click', function() { self.prev(); });
+                document.getElementById('difficult-btn').addEventListener('click', function() { self.markAndNext(); });
+                document.getElementById('easy-btn').addEventListener('click', function() { self.next(); });
+                document.getElementById('restart-btn').addEventListener('click', function() { self.restart(); });
+
+                // Keyboard
+                document.addEventListener('keydown', function(e) {
+                    switch(e.key) {
+                        case ' ':
+                        case 'ArrowUp':
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            self.flip();
+                            break;
+                        case 'ArrowLeft':
+                            self.prev();
+                            break;
+                        case 'ArrowRight':
+                            self.next();
+                            break;
+                        case 'm':
+                        case 'M':
+                            self.toggleMark();
+                            break;
+                        case '1':
+                            self.markAndNext();
+                            break;
+                        case '2':
+                            self.next();
+                            break;
+                    }
+                });
+            }
+
+            flip() {
+                this.isFlipped = !this.isFlipped;
+                const card = document.getElementById('card');
+                if (this.isFlipped) {
+                    card.classList.add('flipped');
+                } else {
+                    card.classList.remove('flipped');
+                }
+            }
+
+            next() {
+                if (this.currentIndex < this.filteredCards.length - 1) {
+                    this.currentIndex++;
+                    this.isFlipped = false;
+                    this.updateDisplay();
+                } else {
+                    this.showCompletion();
+                }
+            }
+
+            prev() {
+                if (this.currentIndex > 0) {
+                    this.currentIndex--;
+                    this.isFlipped = false;
+                    this.updateDisplay();
+                }
+            }
+
+            toggleMark() {
+                const card = this.filteredCards[this.currentIndex];
+                const originalIndex = this.cards.indexOf(card);
+
+                if (this.markedCards.has(originalIndex)) {
+                    this.markedCards.delete(originalIndex);
+                } else {
+                    this.markedCards.add(originalIndex);
+                }
+
+                this.updateStarButton();
+                this.updateStats();
+            }
+
+            markAndNext() {
+                const card = this.filteredCards[this.currentIndex];
+                const originalIndex = this.cards.indexOf(card);
+                this.markedCards.add(originalIndex);
+                this.updateStarButton();
+                this.updateStats();
+                this.next();
+            }
+
+            updateDisplay() {
+                const card = this.filteredCards[this.currentIndex];
+                const originalIndex = this.cards.indexOf(card);
+
+                document.getElementById('front-category').textContent = card.category;
+                document.getElementById('back-category').textContent = card.category;
+                document.getElementById('front-number').textContent = (this.currentIndex + 1) + '/' + this.filteredCards.length;
+                document.getElementById('card-question').textContent = card.question;
+                document.getElementById('card-answer').innerHTML = card.answer;
+
+                const cardEl = document.getElementById('card');
+                if (this.isFlipped) {
+                    cardEl.classList.add('flipped');
+                } else {
+                    cardEl.classList.remove('flipped');
+                }
+
+                this.updateStarButton();
+                this.updateProgress();
+                this.updateNavButtons();
+            }
+
+            updateStarButton() {
+                const card = this.filteredCards[this.currentIndex];
+                const originalIndex = this.cards.indexOf(card);
+                const btn = document.getElementById('star-btn');
+                if (this.markedCards.has(originalIndex)) {
+                    btn.classList.add('marked');
+                } else {
+                    btn.classList.remove('marked');
+                }
+            }
+
+            updateStats() {
+                document.getElementById('current-card').textContent = (this.currentIndex + 1).toString();
+                document.getElementById('total-cards').textContent = this.filteredCards.length.toString();
+                document.getElementById('marked-count').textContent = this.markedCards.size.toString();
+            }
+
+            updateProgress() {
+                const percent = ((this.currentIndex + 1) / this.filteredCards.length) * 100;
+                document.getElementById('progress-fill').style.width = percent + '%';
+            }
+
+            updateNavButtons() {
+                document.getElementById('prev-btn').disabled = this.currentIndex === 0;
+            }
+
+            showCompletion() {
+                document.getElementById('card-container').style.display = 'none';
+                document.getElementById('controls').style.display = 'none';
+                document.querySelector('.keyboard-hints').style.display = 'none';
+                document.getElementById('completion-screen').classList.add('active');
+
+                document.getElementById('completed-total').textContent = this.filteredCards.length.toString();
+                document.getElementById('completed-marked').textContent = this.markedCards.size.toString();
+                document.getElementById('completed-percent').textContent = '100%';
+
+                if (this.markedCards.size > 0) {
+                    const markedList = Array.from(this.markedCards).map(function(i) {
+                        return flashcardsData[i].question.substring(0, 50) + '...';
+                    }).join('<br>');
+                    document.getElementById('difficult-summary').innerHTML = '<strong>Difficult cards to review:</strong><br><small>' + markedList + '</small>';
+                }
+            }
+
+            restart() {
+                this.currentIndex = 0;
+                this.isFlipped = false;
+
+                document.getElementById('card-container').style.display = 'block';
+                document.getElementById('controls').style.display = 'flex';
+                document.querySelector('.keyboard-hints').style.display = 'flex';
+                document.getElementById('completion-screen').classList.remove('active');
+
+                this.updateDisplay();
+                this.updateStats();
+            }
+        }
+
+        // Initialize app
+        const app = new FlashcardApp();
+    </script>
+</body>
+</html>
